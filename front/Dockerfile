@@ -1,15 +1,31 @@
-FROM thecodingmachine/workadventure-back-base:latest as builder
-WORKDIR /var/www/messages
-COPY --chown=docker:docker messages .
-RUN yarn install && yarn proto
+FROM node:15.4.0-buster-slim AS build
 
-# we are rebuilding on each deploy to cope with the API_URL environment URL
-FROM thecodingmachine/nodejs:14-apache
+COPY messages /build/messages
+COPY front /build/front
+RUN \
+	set -ex ;\
+	apt-get update ;\
+	apt-get install -y --no-install-recommends python3 build-essential ;\
+	cd /build/messages ;\
+	yarn install
 
-COPY --chown=docker:docker front .
-COPY --from=builder --chown=docker:docker /var/www/messages/generated /var/www/html/src/Messages/generated
-RUN yarn install
+ARG ADMIN_URL
+ARG API_URL
+ARG UPLOADER_URL
+ARG DEBUG_MODE=false
+ARG JITSI_PRIVATE_MODE=false
+ARG JITSI_URL
+ARG TURN_SERVER=turn:coturn.workadventu.re:443,turns:coturn.workadventu.re:443
+ARG TURN_USER=workadventure
+ARG TURN_PASSWORD=WorkAdventure123
 
-ENV NODE_ENV=production
-ENV STARTUP_COMMAND_1="yarn run build"
-ENV APACHE_DOCUMENT_ROOT=dist/
+RUN set -ex ;\
+	cd /build/messages ;\
+	yarn run proto ;\
+	mv generated ../front/src/Messages/generated ;\
+	cd /build/front ;\
+	yarn install ;\
+	yarn run build
+
+FROM httpd:2.4.46-alpine
+COPY --from=build /build/front/dist/ /usr/local/apache2/htdocs/

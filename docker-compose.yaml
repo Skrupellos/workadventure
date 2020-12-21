@@ -19,28 +19,24 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   front:
-    image: thecodingmachine/nodejs:14
-    environment:
-      DEBUG_MODE: "$DEBUG_MODE"
-      JITSI_URL: $JITSI_URL
-      JITSI_PRIVATE_MODE: "$JITSI_PRIVATE_MODE"
-      HOST: "0.0.0.0"
-      NODE_ENV: development
-      API_URL: pusher.workadventure.localhost
-      UPLOADER_URL: uploader.workadventure.localhost
-      ADMIN_URL: admin.workadventure.localhost
-      STARTUP_COMMAND_1: yarn install
-      TURN_SERVER: "turn:coturn.workadventu.re:443,turns:coturn.workadventu.re:443"
-      TURN_USER: workadventure
-      TURN_PASSWORD: WorkAdventure123
-    command: yarn run start
-    volumes:
-      - ./front:/usr/src/app
+    build:
+      dockerfile: front/Dockerfile
+      context: .
+      args:
+        ADMIN_URL: "$ADMIN_URL"
+        API_URL: "$API_URL"
+        UPLOADER_URL: "$UPLOADER_URL"
+        DEBUG_MODE: "$DEBUG_MODE"
+        JITSI_PRIVATE_MODE: "$JITSI_PRIVATE_MODE"
+        JITSI_URL: "$JITSI_URL"
+        TURN_SERVER: "$TURN_SERVER"
+        TURN_USER: "$TURN_USER"
+        TURN_PASSWORD: "$TURN_PASSWORD"
     labels:
-      - "traefik.http.routers.front.rule=Host(`play.workadventure.localhost`)"
+      - "traefik.http.routers.front.rule=Host(`$PLAY_URL`)"
       - "traefik.http.routers.front.entryPoints=web,traefik"
       - "traefik.http.services.front.loadbalancer.server.port=8080"
-      - "traefik.http.routers.front-ssl.rule=Host(`play.workadventure.localhost`)"
+      - "traefik.http.routers.front-ssl.rule=Host(`$PLAY_URL`)"
       - "traefik.http.routers.front-ssl.entryPoints=websecure"
       - "traefik.http.routers.front-ssl.tls=true"
       - "traefik.http.routers.front-ssl.service=front"

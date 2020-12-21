@@ -1,0 +1,7 @@
+*
+!/front
+!/messages
+/front/Dockerfile
+/front/node_modules/
+/front/dist/bundle.js
+/front/yarn-error.log

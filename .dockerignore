@@ -7,3 +7,10 @@
 /front/node_modules/
 /front/dist/bundle.js
 /front/yarn-error.log
+
+!/pusher
+/pusher/dist/
+/pusher/Dockerfile
+/pusher/node_modules/
+/pusher/dist/bundle.js
+/pusher/yarn-error.log

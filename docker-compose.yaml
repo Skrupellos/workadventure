@@ -42,21 +42,25 @@ services:
       - "traefik.http.routers.front-ssl.service=front"
 
   pusher:
-    image: thecodingmachine/nodejs:12
-    command: yarn dev
-    #command: yarn run prod
-    #command: yarn run profile
+    build:
+      dockerfile: pusher/Dockerfile
+      context: .
     environment:
-      DEBUG: "*"
-      STARTUP_COMMAND_1: yarn install
-      SECRET_JITSI_KEY: "$SECRET_JITSI_KEY"
-      SECRET_KEY: yourSecretKey
-      ADMIN_API_TOKEN: "$ADMIN_API_TOKEN"
-      API_URL: back:50051
-      JITSI_URL: $JITSI_URL
-      JITSI_ISS: $JITSI_ISS
-    volumes:
-      - ./pusher:/usr/src/app
+      #DEBUG: "*"
+      - SECRET_KEY
+      - URL_ROOM_STARTED
+      - MINIMUM_DISTANCE
+      - API_URL
+      - ADMIN_API_URL
+      - ADMIN_API_TOKEN
+      - MAX_USERS_PER_ROOM
+      - GROUP_RADIUS
+      - ALLOW_ARTILLERY
+      - CPU_OVERHEAT_THRESHOLD
+      - JITSI_URL
+      - JITSI_ISS
+      - SECRET_JITSI_KEY
+
     labels:
       - "traefik.http.routers.pusher.rule=Host(`pusher.workadventure.localhost`)"
       - "traefik.http.routers.pusher.entryPoints=web"

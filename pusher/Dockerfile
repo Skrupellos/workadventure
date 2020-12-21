@@ -1,15 +1,23 @@
-FROM thecodingmachine/workadventure-back-base:latest as builder
-WORKDIR /var/www/messages
-COPY --chown=docker:docker messages .
-RUN yarn install && yarn proto
+FROM node:14.15.3-buster-slim AS builder
 
-FROM thecodingmachine/nodejs:12
+COPY messages /build/messages
+COPY pusher /build/pusher
+RUN \
+	set -ex ;\
+	apt-get update ;\
+	apt-get install -y --no-install-recommends python3 build-essential ;\
+	cd /build/messages ;\
+	yarn install
 
-COPY --chown=docker:docker pusher .
-COPY --from=builder --chown=docker:docker /var/www/messages/generated /usr/src/app/src/Messages/generated
-RUN yarn install
+RUN set -ex ;\
+	cd /build/messages ;\
+	yarn run proto ;\
+	mv generated ../pusher/src/Messages/generated ;\
+	cd /build/pusher ;\
+	yarn install ;\
+	yarn run tsc
 
-ENV NODE_ENV=production
-RUN yarn run tsc
-
+FROM node:14.15.3-buster-slim
+WORKDIR /app
+COPY --from=builder /build/pusher/ .
 CMD ["yarn", "run", "runprod"]

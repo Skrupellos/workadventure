@@ -35,7 +35,7 @@ services:
     labels:
       - "traefik.http.routers.front.rule=Host(`$PLAY_URL`)"
       - "traefik.http.routers.front.entryPoints=web,traefik"
-      - "traefik.http.services.front.loadbalancer.server.port=8080"
+      - "traefik.http.services.front.loadbalancer.server.port=80"
       - "traefik.http.routers.front-ssl.rule=Host(`$PLAY_URL`)"
       - "traefik.http.routers.front-ssl.entryPoints=websecure"
       - "traefik.http.routers.front-ssl.tls=true"

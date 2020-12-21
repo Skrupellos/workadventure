@@ -1,6 +1,8 @@
 *
-!/front
+
 !/messages
+
+!/front
 /front/Dockerfile
 /front/node_modules/
 /front/dist/bundle.js
